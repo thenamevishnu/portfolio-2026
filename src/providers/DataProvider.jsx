@@ -5,29 +5,26 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@/store/store";
 import { Provider } from "react-redux";
+import { Modal } from "@/components/Modal";
 
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
     const [myInfo, setMyInfo] = useState(null);
     const [reviews, setReviews] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [globalError, setGlobalError] = useState({});
 
     const getData = async () => {
-        setIsLoading(true);
         try {
             const [meResponse, reviewsResponse] = await Promise.all([
                 axios.get("/api/me"),
                 axios.get("/api/reviews")
             ]);
-            console.log(reviewsResponse)
             setMyInfo(meResponse.data);
             setReviews(reviewsResponse.data);
         } catch (e) {
             setMyInfo(null);
-        } finally {
-            setIsLoading(false);
-        }
+        } 
     }
 
     useEffect(() => {
@@ -35,10 +32,11 @@ export const DataProvider = ({ children }) => {
     }, []);
 
     return <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-        <DataContext.Provider value={{ myInfo, reviews, setReviews }}>
+        <DataContext.Provider value={{ myInfo, reviews, setReviews, globalError, setGlobalError }}>
             <PersistGate loading={null} persistor={persistor}>
                 <Provider store={store}>
                     {myInfo ? children : null}
+                    <Modal />
                 </Provider>
             </PersistGate>
         </DataContext.Provider>
@@ -53,4 +51,9 @@ export const useMe = () => {
 export const useReviews = () => {
     const { reviews, setReviews } = useContext(DataContext);
     return { reviews, setReviews };
+}
+
+export const useGlobalError = () => {
+    const { globalError, setGlobalError } = useContext(DataContext);
+    return { globalError, setGlobalError };
 }

@@ -1,6 +1,6 @@
-const { default: axios } = require("axios");
+import axios from "axios";
 
-export class TelegramBot{
+export class TelegramBot {
     
     #token;
     #api;
@@ -10,17 +10,23 @@ export class TelegramBot{
         this.#api = `https://api.telegram.org/bot${this.#token}`;
     }
 
-    async #api_call(api) {
+    async #api_call(url) {
         try {
-            const response = await axios.get(api);
-            return response;
+            const response = await axios.get(url);
+            return response.data;
         } catch (err) {
             return err.response?.data || err;
         }
     }
 
-    async sendMessage(chat_id, text) {
-        const response = await this.#api_call(`${this.#api}/sendMessage?chat_id=${chat_id}&text=${text}`);
-        return response;
+    async sendMessage(chat_id, text, parse_mode = "HTML") {
+        const params = new URLSearchParams({
+            chat_id: chat_id.toString(),
+            text: text,
+            parse_mode: parse_mode
+        });
+
+        const url = `${this.#api}/sendMessage?${params.toString()}`;
+        return await this.#api_call(url);
     }
 }

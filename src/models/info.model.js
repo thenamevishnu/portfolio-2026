@@ -106,6 +106,10 @@ const infoSchema = new Schema({
     },
     social: {
         list: [SocialItemSchema]
+    },
+    maintenance_mode: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

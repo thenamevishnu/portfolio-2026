@@ -10,7 +10,6 @@ export const Projects = () => {
         <section id="portfolio" className="relative bg-neutral-950 text-neutral-200 px-4 sm:px-6 py-24 border-t border-neutral-900">
             <div className="mx-auto max-w-[1200px]">
 
-                {/* Section Title: Perfectly Centered */}
                 <div className="mb-16 text-center">
                     <span className="text-xs font-semibold tracking-widest text-emerald-400 uppercase">
                         {myInfo.portfolio.label}
@@ -23,7 +22,6 @@ export const Projects = () => {
                     </p>
                 </div>
 
-                {/* Responsive Grid: 1 Column on Mobile, 2 Columns on md (768px) and up */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                     {myInfo.portfolio.list.map((project, index) => (
                         <div
@@ -31,13 +29,11 @@ export const Projects = () => {
                             className="group relative flex flex-col justify-between rounded-2xl border border-neutral-900 bg-neutral-900/20 p-6 sm:p-8 transition-all duration-300 hover:border-neutral-800 hover:bg-neutral-900/40"
                         >
                             <div>
-                                {/* Category & Title */}
                                 <div className="flex items-center justify-between gap-4 mb-4">
                                     <span className="text-[10px] sm:text-xs font-semibold tracking-wider text-neutral-500 uppercase">
                                         {project.category}
                                     </span>
 
-                                    {/* Subtle Arrow Icon indicator */}
                                     <div className="text-neutral-500 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-emerald-400">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
@@ -54,7 +50,6 @@ export const Projects = () => {
                                 </p>
                             </div>
 
-                            {/* Footer: Tech Tags & Interactive Link anchor */}
                             <div className="mt-8">
                                 <div className="flex flex-wrap gap-2 mb-6">
                                     {project.tech.map((tag, tagIndex) => (

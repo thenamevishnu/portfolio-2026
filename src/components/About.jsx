@@ -9,7 +9,6 @@ export const About = () => {
         <section id="about" className="relative bg-neutral-950 text-neutral-200 px-4 sm:px-6 py-24 border-t border-neutral-900">
             <div className="mx-auto max-w-[1200px] grid grid-cols-1 md:grid-cols-2 gap-12 items-center w-full">
 
-                {/* Left Column: Bio Text Content */}
                 <div className="space-y-6 max-w-xl mx-auto md:mx-0 text-center md:text-left">
                     <div>
                         <span className="text-xs font-semibold tracking-widest text-emerald-400 uppercase">
@@ -28,7 +27,6 @@ export const About = () => {
                         {myInfo.about.description2}
                     </p>
 
-                    {/* Subtle CTA Anchor link to experience/work */}
                     <div className="pt-2">
                         <a
                             href={myInfo.about.button.link}
@@ -55,7 +53,6 @@ export const About = () => {
                         </div>
                     ))}
 
-                    {/* Subtle Accent Box detailing work philosophy */}
                     <div className="p-5 rounded-2xl border border-neutral-900/50 bg-neutral-950 text-[11px] text-neutral-500 font-light leading-relaxed text-center md:text-left">
                         Focused on performance, user access standards, and modular architecture.
                     </div>

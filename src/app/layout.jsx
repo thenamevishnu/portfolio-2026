@@ -1,7 +1,7 @@
 import { Geom } from "next/font/google";
 import "./globals.css";
 import { DataProvider } from "@/providers/DataProvider";
-import MaintenanceModal from "@/components/CloseAlert";
+import { MaintenanceModal } from "@/components/Maintenance";
 
 const geom = Geom({
     variable: "--font-geom",

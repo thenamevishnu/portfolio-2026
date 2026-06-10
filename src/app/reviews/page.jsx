@@ -1,6 +1,6 @@
 "use client";
 import { Header } from "@/components/Header";
-import { useReviews } from "@/providers/DataProvider";
+import { useGlobalError, useReviews } from "@/providers/DataProvider";
 import { add_user, remove_user } from "@/store/user.slice";
 import { useGoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 const ReviewsSection = () => {
     const { reviews, setReviews } = useReviews();
+    const { setGlobalError } = useGlobalError();
     const loggedUser = useSelector((state) => state.user);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -28,7 +29,6 @@ const ReviewsSection = () => {
 
     const dispatch = useDispatch();
 
-    // Sync state accurately when loggedUser changes
     useEffect(() => {
         if (loggedUser) {
             setReviewObj(prev => ({
@@ -41,7 +41,6 @@ const ReviewsSection = () => {
         }
     }, [loggedUser]);
 
-    // Close action menus when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -52,7 +51,6 @@ const ReviewsSection = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Prevent body scroll when drawer is open
     useEffect(() => {
         if (isDrawerOpen) {
             document.body.style.overflow = "hidden";
@@ -72,12 +70,28 @@ const ReviewsSection = () => {
                 const { sub: uid, name, email, picture } = data;
                 dispatch(add_user({ uid, name, email, picture }));
             } catch (error) {
-                console.error("Google Login Error:", error);
+                return setGlobalError({
+                    label: "Login Failed",
+                    title: "Unable to Sign In with Google",
+                    description: "An error occurred while signing in with Google. Please try again later."
+                });
             }
         },
-        onNonOAuthError: (error) => {
+        onError: _e => {
             setIsLoggingIn(false);
-            console.error("Non-OAuth Error:", error);
+            return setGlobalError({
+                label: "Login Failed",
+                title: "Google Sign-In Failed",
+                description: "We couldn't sign you in with Google at the moment. Please try again later."
+            });
+        },
+        onNonOAuthError: _e => {
+            setIsLoggingIn(false);
+            return setGlobalError({
+                label: "Something Went Wrong",
+                title: "Unable to Complete Your Request",
+                description: "An unexpected error occurred. Please try again in a few moments."
+            });
         }
     });
 
@@ -101,7 +115,11 @@ const ReviewsSection = () => {
             setIsDrawerOpen(false);
             setReviewObj(prev => ({ ...prev, description: "", rating: 5 }));
         } catch (error) {
-            console.error("Error submitting review:", error);
+            return setGlobalError({
+                label: "Review Submission Failed",
+                title: "Unable to Submit Your Review",
+                description: "We couldn't submit your review at the moment. Please try again later."
+            });
         }
     };
 
@@ -112,7 +130,6 @@ const ReviewsSection = () => {
         });
     };
 
-    // Card Action Handlers
     const handleEdit = (review, index) => {
         setActiveMenuIndex(null);
         setReviewObj({
@@ -130,7 +147,11 @@ const ReviewsSection = () => {
                 await axios.delete(`/api/reviews`, { params: { id: review.uid } });
                 setReviews(reviews.filter((r) => r.uid !== review.uid));
             } catch (error) {
-                console.error("Error deleting review:", error);
+                return setGlobalError({
+                    label: "Delete Failed",
+                    title: "Unable to Delete Review",
+                    description: "We couldn't delete your review at the moment. Please try again later."
+                });
             }
         }
     };
@@ -161,7 +182,6 @@ const ReviewsSection = () => {
                                     key={index}
                                     className="group relative flex flex-col justify-between rounded-xl border border-neutral-900 bg-neutral-900/20 p-4 xs:p-6 sm:p-8 transition-all duration-500 hover:border-emerald-500/20 hover:bg-neutral-900/40"
                                 >
-                                    {/* background layer with pointer-events-none ensures clicks bypass overlay safely */}
                                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.04)_0%,transparent_60%)] pointer-events-none" />
 
                                     <div className="relative z-10 min-w-0">
@@ -177,7 +197,6 @@ const ReviewsSection = () => {
                                                 )}
                                             </div>
 
-                                            {/* Bumped to relative z-30 to ensure full interactivity over layouts */}
                                             <div className="relative z-30 flex items-center gap-3">
                                                 <span className="font-mono text-[9px] font-medium text-neutral-700 tracking-wider">
                                                     // 0{index + 1}
@@ -195,7 +214,6 @@ const ReviewsSection = () => {
                                                         </svg>
                                                     </button>
 
-                                                    {/* Contextual Dropdown */}
                                                     {activeMenuIndex === index && (
                                                         <div
                                                             ref={menuRef}
@@ -252,7 +270,6 @@ const ReviewsSection = () => {
                     </div>
                 </section>
 
-                {/* ADAPTIVE ACTION TRIGGER (FAB) */}
                 <div className="fixed bottom-4 right-4 z-40">
                     <button
                         onClick={() => setIsDrawerOpen(true)}
@@ -268,7 +285,6 @@ const ReviewsSection = () => {
                     </button>
                 </div>
 
-                {/* FIXED SLIDING SHEET CONTAINER */}
                 <div className={`fixed inset-0 z-50 transition-all duration-500 ${isDrawerOpen ? "pointer-events-auto" : "pointer-events-none"}`}>
                     <div
                         onClick={() => setIsDrawerOpen(false)}

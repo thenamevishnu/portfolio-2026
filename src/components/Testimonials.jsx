@@ -14,7 +14,6 @@ export const Testimonials = () => {
         <section id="reviews" className="relative bg-neutral-950 text-neutral-200 px-[4%] xs:px-6 py-12 sm:py-24 border-t border-neutral-900">
             <div className="mx-auto max-w-[1200px]">
 
-                {/* Centered Title */}
                 <div className="mb-10 sm:mb-16 text-center">
                     <span className="text-[10px] sm:text-xs font-semibold tracking-widest text-emerald-400 uppercase block">
                         {myInfo.reviews.label}
@@ -24,7 +23,6 @@ export const Testimonials = () => {
                     </h2>
                 </div>
 
-                {/* Responsive Grid Matrix */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                     {reviews.slice(0, 4).map((item) => (
                         <div
@@ -32,7 +30,6 @@ export const Testimonials = () => {
                             className="group relative flex flex-col justify-between rounded-2xl border border-neutral-900 bg-neutral-900/20 p-4 xs:p-6 sm:p-8 transition-all duration-300 hover:border-neutral-800 hover:bg-neutral-900/40"
                         >
                             <div>
-                                {/* Rating Row */}
                                 <div className="flex items-center gap-0.5 sm:gap-1 mb-[4vw] sm:mb-5">
                                     {[...Array(item.rating)].map((_, starIndex) => (
                                         <svg
@@ -46,28 +43,23 @@ export const Testimonials = () => {
                                     ))}
                                 </div>
 
-                                {/* Description Review */}
                                 <p className="text-xs sm:text-sm md:text-base text-neutral-300 font-light leading-relaxed italic">
                                     "{item.description}"
                                 </p>
                             </div>
 
-                            {/* User Bio Footer */}
                             <div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-4 pt-4 border-t border-neutral-900/60 min-w-0">
-                                {/* Avatar container */}
                                 <div className="h-9 w-9 sm:h-11 sm:w-11 shrink-0 rounded-full overflow-hidden border border-neutral-800 bg-neutral-900">
                                     <img
                                         src={item.picture}
                                         alt={item.name}
                                         className="h-full w-full object-cover filter grayscale transition-all duration-300 group-hover:grayscale-0"
                                         onError={(e) => {
-                                            // Fallback text avatar structure if link fails
                                             e.currentTarget.style.display = 'none';
                                         }}
                                     />
                                 </div>
 
-                                {/* Identity info */}
                                 <div className="min-w-0 flex-1">
                                     <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                                         {item.name}
@@ -83,14 +75,12 @@ export const Testimonials = () => {
                     ))}
                 </div>
 
-                {/* Premium Micro-Responsive Action Button Container */}
                 <div className="mt-10 sm:mt-16 flex justify-center w-full px-4">
                     <button
                         type="button"
                         onClick={handleNavigateToReviews}
                         className="group relative inline-flex h-10 sm:h-11 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900/30 px-6 sm:px-8 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-neutral-400 transition-all duration-300 hover:border-emerald-500/30 hover:bg-neutral-900/60 hover:text-white active:scale-95 w-full max-w-[200px] xs:w-auto"
                     >
-                        {/* Interactive hover glow */}
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)] pointer-events-none" />
 
                         <span className="relative z-10 flex items-center gap-2">

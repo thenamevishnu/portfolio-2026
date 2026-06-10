@@ -3,7 +3,6 @@ import { Review } from "@/models/review.model";
 export const POST = async (request) => {
     try {
         const body = await request.json();
-        console.log(body)
         const existedReview = await Review.findOne({ email: body.email });
         if (existedReview) {
             existedReview.title = body.title;
@@ -19,7 +18,6 @@ export const POST = async (request) => {
         }
         return Response.json({ message: "Your review has been added.", review: response }, { status: 201 });
     } catch (e) {
-        console.log(e)
         return Response.json({ message: e.message || "Internal Server Error" }, { status: 500 });
     }
 }

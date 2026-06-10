@@ -5,12 +5,10 @@ export const Expertise = () => {
 
     const myInfo = useMe();
 
-    
     return (
         <section id="expertise" className="relative bg-neutral-950 text-neutral-200 px-4 sm:px-6 py-24 border-t border-neutral-900">
             <div className="mx-auto max-w-[1400px]">
 
-                {/* Centered Heading */}
                 <div className="mb-16 text-center">
                     <span className="text-xs font-semibold tracking-widest text-emerald-400 uppercase">
                         {myInfo.expertise.label}
@@ -23,14 +21,12 @@ export const Expertise = () => {
                     </p>
                 </div>
 
-                {/* Responsive Grid Structure: 1 Col on Mobile, 2 Cols on md, 3 Cols on lg (992px) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
                     {myInfo.expertise.list.map((block, blockIndex) => (
                         <div
                             key={blockIndex}
                             className="group rounded-2xl border border-neutral-900 bg-neutral-900/10 p-6 sm:p-8 transition-all duration-300 hover:border-neutral-800 hover:bg-neutral-900/30"
                         >
-                            {/* Category Header */}
                             <div className="mb-6 border-b border-neutral-900 pb-4">
                                 <span className="text-[10px] font-semibold tracking-widest text-neutral-500 uppercase">
                                     {block.subtitle}
@@ -40,7 +36,6 @@ export const Expertise = () => {
                                 </h3>
                             </div>
 
-                            {/* Stacked Names Layout (Flex Wrap) */}
                             <div className="flex flex-wrap gap-2.5">
                                 {block.skills.map((skill, skillIndex) => (
                                     <span
