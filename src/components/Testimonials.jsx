@@ -21,6 +21,9 @@ export const Testimonials = () => {
                     <h2 className="text-[7.5vw] xs:text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">
                         {myInfo.reviews.title}
                     </h2>
+                    <p className="mt-1.5 text-[11px] sm:text-sm text-neutral-400 font-light leading-relaxed">
+                        {myInfo.reviews.description}
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
@@ -79,14 +82,21 @@ export const Testimonials = () => {
                     <button
                         type="button"
                         onClick={handleNavigateToReviews}
-                        className="group relative inline-flex h-10 sm:h-11 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900/30 px-6 sm:px-8 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-neutral-400 transition-all duration-300 hover:border-emerald-500/30 hover:bg-neutral-900/60 hover:text-white active:scale-95 w-full max-w-[200px] xs:w-auto"
+                        className="group cursor-pointer relative inline-flex h-10 sm:h-11 items-center justify-center rounded-xl border border-neutral-800 bg-neutral-900/30 px-5 sm:px-7 text-[10px] sm:text-xs font-semibold tracking-widest uppercase text-neutral-400 transition-all duration-300 hover:border-emerald-500/40 hover:bg-neutral-900/60 hover:text-white active:scale-95 overflow-hidden"
                     >
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)] pointer-events-none" />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08)_0%,transparent_70%)] pointer-events-none" />
 
-                        <span className="relative z-10 flex items-center gap-2">
-                            Show More
-                            <svg className="h-3 w-3 text-neutral-500 group-hover:text-emerald-400 transition-colors transform group-hover:translate-y-0.5 duration-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        <span className="relative z-10 flex items-center gap-2 duration-100 transition-all">
+                            <span>Explore</span>
+
+                            <svg
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2.5}
+                                stroke="currentColor"
+                                className="w-3 h-3 text-neutral-500 group-hover:text-emerald-400 transition-all duration-300 transform group-hover:translate-x-0.5"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l 7.5 7.5 -7.5 7.5" />
                             </svg>
                         </span>
                     </button>

@@ -1,21 +1,27 @@
 "use client";
 import { Header } from "@/components/Header";
-import { useGlobalError, useReviews } from "@/providers/DataProvider";
+import { ReviewInfoModal } from "@/components/Modal/InfoModal";
+import { useGlobalError, useMe, useReviews } from "@/providers/DataProvider";
 import { add_user, remove_user } from "@/store/user.slice";
 import { useGoogleLogin } from "@react-oauth/google";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
 import moment from "moment";
 import { Fragment, useState, useEffect, useRef } from "react";
+import { LuLogOut } from "react-icons/lu";
 import { useSelector, useDispatch } from "react-redux";
 
 const ReviewsSection = () => {
+    const myInfo = useMe();
     const { reviews, setReviews } = useReviews();
     const { setGlobalError } = useGlobalError();
     const loggedUser = useSelector((state) => state.user);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+    const [selectedReviewInfo, setSelectedReviewInfo] = useState(null);
+    const [wantsToDelete, setWantsToDelete] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const menuRef = useRef(null);
 
     const [reviewObj, setReviewObj] = useState({
@@ -45,6 +51,7 @@ const ReviewsSection = () => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
                 setActiveMenuIndex(null);
+                setWantsToDelete(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
@@ -106,7 +113,7 @@ const ReviewsSection = () => {
             const response = await axios.post(`/api/reviews`, reviewObj);
             const uidIndex = reviews.findIndex(review => review.uid === reviewObj.uid);
             if (uidIndex === -1) {
-                setReviews([...reviews, response.data.review]);
+                setReviews([response.data.review, ...reviews]);
             } else {
                 const updatedReviews = [...reviews];
                 updatedReviews[uidIndex] = response.data.review;
@@ -130,8 +137,9 @@ const ReviewsSection = () => {
         });
     };
 
-    const handleEdit = (review, index) => {
+    const handleEdit = (review) => {
         setActiveMenuIndex(null);
+        setWantsToDelete(false);
         setReviewObj({
             ...reviewObj,
             rating: review.rating,
@@ -140,55 +148,60 @@ const ReviewsSection = () => {
         setIsDrawerOpen(true);
     };
 
-    const handleDelete = async (review) => {
-        setActiveMenuIndex(null);
-        if (confirm("Are you sure you want to delete this review?")) {
-            try {
-                await axios.delete(`/api/reviews`, { params: { id: review.uid } });
-                setReviews(reviews.filter((r) => r.uid !== review.uid));
-            } catch (error) {
-                return setGlobalError({
-                    label: "Delete Failed",
-                    title: "Unable to Delete Review",
-                    description: "We couldn't delete your review at the moment. Please try again later."
-                });
-            }
+    const handleConfirmDelete = async (review) => {
+        if (!review) return;
+        setIsDeleting(true);
+        try {
+            await axios.delete(`/api/reviews`, { params: { id: review.uid } });
+            setReviews(reviews.filter((r) => r.uid !== review.uid));
+            setActiveMenuIndex(null);
+            setWantsToDelete(false);
+        } catch (error) {
+            setGlobalError({
+                label: "Delete Failed",
+                title: "Unable to Delete Review",
+                description: "We couldn't delete your review at the moment. Please try again later."
+            });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
     const handleInfo = (review) => {
         setActiveMenuIndex(null);
-        alert(`Review Metadata:\nUser ID: ${review.uid}\nSubmitted via OAuth Console.`);
+        setWantsToDelete(false);
+        setSelectedReviewInfo(review);
     };
 
     return (
         <Fragment>
             <Header />
+            <ReviewInfoModal selectedReviewInfo={selectedReviewInfo} setSelectedReviewInfo={setSelectedReviewInfo} />
             <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-                <section className="relative px-[4%] xs:px-6 py-8 sm:py-24 z-10 bg-neutral-950 text-neutral-200">
-                    <div className="mx-auto max-w-[1200px] space-y-8 sm:space-y-16">
+                <section className="relative px-[4%] xs:px-5 py-6 sm:py-24 z-10 bg-neutral-950 text-neutral-200">
+                    <div className="mx-auto max-w-[1200px] space-y-6 sm:space-y-16">
 
                         <div className="text-center max-w-2xl mx-auto px-1">
-                            <span className="text-[9px] sm:text-xs font-semibold tracking-widest text-emerald-400 uppercase block">Reviews</span>
-                            <h2 className="text-[7.5vw] xs:text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">Client Feedback</h2>
+                            <span className="text-[9px] sm:text-xs font-semibold tracking-widest text-emerald-400 uppercase block">{myInfo.reviews.label}</span>
+                            <h2 className="text-[7.5vw] xs:text-xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">{myInfo.reviews.title}</h2>
                             <p className="mt-1.5 text-[11px] sm:text-sm text-neutral-400 font-light leading-relaxed">
-                                Read authentic project breakdowns recorded by clients worldwide.
+                                {myInfo.reviews.description}
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3.5 xs:gap-6 lg:gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5 xs:gap-5 lg:gap-6">
                             {reviews.map((review, index) => (
                                 <div
                                     key={index}
-                                    className="group relative flex flex-col justify-between rounded-xl border border-neutral-900 bg-neutral-900/20 p-4 xs:p-6 sm:p-8 transition-all duration-500 hover:border-emerald-500/20 hover:bg-neutral-900/40"
+                                    className="group relative flex flex-col justify-between rounded-xl border border-neutral-900 bg-neutral-900/10 p-3.5 xs:p-5 sm:p-6 transition-all duration-300 hover:border-emerald-500/20 hover:bg-neutral-900/30"
                                 >
-                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.04)_0%,transparent_60%)] pointer-events-none" />
+                                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.03)_0%,transparent_70%)] pointer-events-none" />
 
                                     <div className="relative z-10 min-w-0">
-                                        <div className="flex items-center justify-between gap-4 mb-3">
+                                        <div className="flex items-center justify-between gap-4 mb-3.5">
                                             <div className="flex items-center gap-0.5">
                                                 {[...Array(review.rating)].map((_, i) => (
-                                                    <svg key={i} className="w-5 h-5 text-emerald-400 fill-current shrink-0" viewBox="0 0 20 20">
+                                                    <svg key={i} className="w-3.5 h-3.5 text-emerald-400 fill-current shrink-0" viewBox="0 0 20 20">
                                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                                     </svg>
                                                 ))}
@@ -198,16 +211,15 @@ const ReviewsSection = () => {
                                             </div>
 
                                             <div className="relative z-30 flex items-center gap-3">
-                                                <span className="font-mono text-[9px] font-medium text-neutral-700 tracking-wider">
-                                                    // 0{index + 1}
-                                                </span>
                                                 <div className="relative">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
+                                                            setWantsToDelete(false);
                                                             setActiveMenuIndex(activeMenuIndex === index ? null : index);
                                                         }}
-                                                        className="p-1 rounded-md cursor-pointer text-neutral-500 hover:text-white hover:bg-neutral-900 transition-colors focus:outline-none"
+                                                        disabled={isDeleting}
+                                                        className="p-1 rounded-md cursor-pointer text-neutral-500 hover:text-white hover:bg-neutral-900 transition-colors focus:outline-none disabled:opacity-50"
                                                     >
                                                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                             <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
@@ -217,38 +229,60 @@ const ReviewsSection = () => {
                                                     {activeMenuIndex === index && (
                                                         <div
                                                             ref={menuRef}
-                                                            className="absolute right-5 top-0 mt-1 w-28 rounded-lg border border-neutral-800 bg-neutral-950 p-1 shadow-2xl z-50"
+                                                            className="absolute right-5 top-0 mt-1 w-36 rounded-lg border border-neutral-800 bg-neutral-950 p-1 shadow-2xl z-50 animate-in fade-in duration-150"
                                                         >
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); handleInfo(review); }}
-                                                                className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-md transition-colors"
-                                                            >
-                                                                Info
-                                                            </button>
-                                                            {
-                                                                review.uid == loggedUser?.uid && <Fragment>
+                                                            {!wantsToDelete ? (
+                                                                <Fragment>
                                                                     <button
-                                                                        onClick={(e) => { e.stopPropagation(); handleEdit(review); }}
-                                                                        className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-md transition-colors"
+                                                                        onClick={(e) => { e.stopPropagation(); handleInfo(review); }}
+                                                                        className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-md transition-colors whitespace-nowrap"
                                                                     >
-                                                                        Edit
+                                                                        Info
+                                                                    </button>
+                                                                    {review.uid === loggedUser?.uid && (
+                                                                        <Fragment>
+                                                                            <button
+                                                                                onClick={(e) => { e.stopPropagation(); handleEdit(review); }}
+                                                                                className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-neutral-300 hover:text-white hover:bg-neutral-900 rounded-md transition-colors whitespace-nowrap"
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <div className="my-1 border-t border-neutral-900" />
+                                                                            <button
+                                                                                onClick={(e) => { e.stopPropagation(); setWantsToDelete(true); }}
+                                                                                className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-red-400 hover:text-red-100 hover:bg-red-950/40 rounded-md transition-colors whitespace-nowrap"
+                                                                            >
+                                                                                Delete
+                                                                            </button>
+                                                                        </Fragment>
+                                                                    )}
+                                                                </Fragment>
+                                                            ) : (
+                                                                <Fragment>
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); handleConfirmDelete(review); }}
+                                                                        disabled={isDeleting}
+                                                                        className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-bold text-red-400 hover:text-white hover:bg-red-600 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
+                                                                    >
+                                                                        {isDeleting ? "Deleting..." : "Confirm Delete"}
                                                                     </button>
                                                                     <div className="my-1 border-t border-neutral-900" />
                                                                     <button
-                                                                        onClick={(e) => { e.stopPropagation(); handleDelete(review); }}
-                                                                        className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-red-400 hover:text-red-100 hover:bg-red-950/40 rounded-md transition-colors"
+                                                                        onClick={(e) => { e.stopPropagation(); setWantsToDelete(false); }}
+                                                                        disabled={isDeleting}
+                                                                        className="flex w-full cursor-pointer items-center px-2.5 py-1.5 text-[11px] font-medium text-neutral-400 hover:text-white hover:bg-neutral-900 rounded-md transition-colors disabled:opacity-50 whitespace-nowrap"
                                                                     >
-                                                                        Delete
+                                                                        Back
                                                                     </button>
                                                                 </Fragment>
-                                                            }
+                                                            )}
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <p className="text-[11px] sm:text-sm text-neutral-400 font-light leading-relaxed wrap-break-word line-clamp-5 sm:line-clamp-none">
+                                        <p className="text-[11px] sm:text-xs md:text-sm text-neutral-300 font-light leading-relaxed wrap-break-word whitespace-pre-line line-clamp-4 md:line-clamp-5 xl:line-clamp-none">
                                             {review.description}
                                         </p>
                                     </div>
@@ -274,7 +308,7 @@ const ReviewsSection = () => {
                     <button
                         onClick={() => setIsDrawerOpen(true)}
                         type="button"
-                        className="group relative flex h-10 w-10 xs:w-auto xs:h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/30 bg-neutral-900/90 p-0 xs:px-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-emerald-400 active:scale-95"
+                        className="group relative flex h-10 w-10 xs:w-auto xs:h-11 items-center justify-center gap-2 rounded-full border border-emerald-500/30 bg-neutral-900/90 p-0 xs:px-4 text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-emerald-400 active:scale-95 cursor-pointer"
                     >
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-neutral-950 font-black text-xs shrink-0">
                             <svg className="h-3 w-3 stroke-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -299,7 +333,7 @@ const ReviewsSection = () => {
                             </div>
                             <button
                                 onClick={() => setIsDrawerOpen(false)}
-                                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center rounded-lg border border-neutral-900 text-neutral-400 hover:text-white transition-colors"
+                                className="h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center rounded-lg border border-neutral-900 text-neutral-400 hover:text-white transition-colors cursor-pointer"
                             >
                                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -307,7 +341,7 @@ const ReviewsSection = () => {
                             </button>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
                             {!loggedUser?.email ? (
                                 <div className="text-center py-6 h-full flex flex-col justify-center items-center space-y-3">
                                     <div className="h-9 w-9 rounded-xl bg-neutral-900/50 border border-neutral-900 flex items-center justify-center text-emerald-400 shadow-inner">
@@ -322,7 +356,7 @@ const ReviewsSection = () => {
                                     <button
                                         onClick={() => { setIsLoggingIn(true); handleGoogleLogin(); }}
                                         disabled={isLoggingIn}
-                                        className="w-full max-w-[200px] mt-2 inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 text-[10px] font-semibold text-neutral-200 transition-all hover:bg-neutral-800"
+                                        className="w-full max-w-[200px] mt-2 inline-flex h-9 items-center justify-center gap-2 rounded-xl border border-neutral-800 bg-neutral-900 text-[10px] font-semibold text-neutral-200 transition-all hover:bg-neutral-800 cursor-pointer"
                                     >
                                         {isLoggingIn ? (
                                             <div className="h-3 w-3 border-2 border-neutral-400 border-t-transparent rounded-full animate-spin" />
@@ -332,9 +366,9 @@ const ReviewsSection = () => {
                                                     <path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0112 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.33 0 3.33 2.69 1.455 6.614l3.81 3.151z" />
                                                     <path fill="#34A853" d="M16.04 15.345c-1.036.736-2.4 1.173-4.04 1.173a7.08 7.08 0 01-6.75-4.855L1.414 14.8C3.273 18.673 7.29 21.364 12 21.364c3.155 0 6.018-1.055 8.164-2.873l-4.124-3.146z" />
                                                     <path fill="#4285F4" d="M23.491 12.273c0-.818-.073-1.609-.209-2.364H12v4.51h6.464a5.533 5.533 0 01-2.4 3.636l4.123 3.145c2.41-2.227 3.804-5.509 3.804-9.291z" />
-                                                    <path fill="#FBBC05" d="M5.25 11.664a7.13 7.13 0 010-2.273L1.44 6.24A11.947 11.947 0 000 12c0 2.082.536 4.045 1.464 5.764l3.786-3.1a7.062 7.062 0 010-2.999z" />
+                                                    <path fill="#FBBC05" d="M5.25 11.664a7.13 7.13 0 010-2.273L1.44 6.24A11.947 11.947 0 000 12c0 2.082.536 4.045 1.464 5.764l3.786-3.1 a7.062 7.062 0 010-2.999z" />
                                                 </svg>
-                                                Sign In
+                                                <span>Sign In</span>
                                             </>
                                         )}
                                     </button>
@@ -350,7 +384,7 @@ const ReviewsSection = () => {
                                                     <span className="text-[8px] xs:text-xs text-neutral-500 block truncate leading-tight">{loggedUser.email}</span>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={signOut} className="text-[8px] font-bold text-neutral-500 hover:text-red-400 tracking-wider uppercase pl-1.5 shrink-0">Exit</button>
+                                            <button type="button" onClick={signOut} className="cursor-pointer font-bold text-neutral-500 hover:text-red-400 tracking-wider uppercase pl-1.5 shrink-0"><LuLogOut /></button>
                                         </div>
 
                                         <div className="space-y-1">
@@ -388,7 +422,7 @@ const ReviewsSection = () => {
 
                                     <button
                                         type="submit"
-                                        className="w-full h-9 shrink-0 sm:h-11 inline-flex items-center justify-center rounded-xl bg-white text-[10px] sm:text-xs font-semibold text-neutral-950 hover:bg-neutral-200 active:scale-98 transition-all duration-300 shadow-xl"
+                                        className="w-full h-9 shrink-0 sm:h-11 inline-flex items-center justify-center rounded-xl bg-white text-[10px] sm:text-xs font-semibold text-neutral-950 hover:bg-neutral-200 active:scale-98 transition-all duration-300 shadow-xl cursor-pointer"
                                     >
                                         Publish Review
                                     </button>
@@ -397,7 +431,6 @@ const ReviewsSection = () => {
                         </div>
                     </div>
                 </div>
-
             </GoogleOAuthProvider>
         </Fragment>
     );

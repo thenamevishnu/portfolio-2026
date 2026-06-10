@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@/store/store";
 import { Provider } from "react-redux";
-import { Modal } from "@/components/Modal";
+import { Modal } from "@/components/Modal/Modal";
 import { LoadingScreen } from "@/components/LoadingScreen";
 
 const DataContext = createContext();

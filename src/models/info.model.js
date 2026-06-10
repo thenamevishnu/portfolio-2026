@@ -33,14 +33,6 @@ const ExpertiseItemSchema = new Schema({
     skills: { type: [String], required: true }
 }, { _id: false });
 
-const ReviewItemSchema = new Schema({
-    name: { type: String, required: true },
-    role: { type: String, required: true },
-    image: { type: String, required: true },
-    rating: { type: Number, required: true },
-    description: { type: String, required: true }
-}, { _id: false });
-
 const SocialItemSchema = new Schema({
     name: { type: String, required: true },
     url: { type: String, required: true }
@@ -94,7 +86,7 @@ const infoSchema = new Schema({
     reviews: {
         label: { type: String, required: true },
         title: { type: String, required: true },
-        list: [ReviewItemSchema]
+        description: { type: String, required: true }
     },
     contact: {
         label: { type: String, required: true },
