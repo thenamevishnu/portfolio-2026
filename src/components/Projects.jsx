@@ -1,5 +1,6 @@
 "use client";
 import { useMe } from "@/providers/DataProvider";
+import { LuLink2 } from "react-icons/lu"
 
 export const Projects = () => {
     
@@ -66,12 +67,21 @@ export const Projects = () => {
                                     ))}
                                 </div>
 
-                                <a
-                                    href={project.link}
-                                    className="inline-flex items-center text-xs font-semibold tracking-wider text-white uppercase border-b border-neutral-800 pb-1 transition-colors duration-300 hover:border-emerald-400 hover:text-emerald-400"
-                                >
-                                    Explore Project
-                                </a>
+                                <div className="flex gap-3">
+                                    {
+                                        project.link.map((item, idx) => {
+                                            
+                                            return <a
+                                                key={idx}
+                                                href={item.link}
+                                                target="_blank"
+                                                className="inline-flex items-center text-xs font-semibold tracking-wider text-white uppercase border border-neutral-800 p-2 rounded-full transition-colors duration-300 hover:border-emerald-400 hover:text-emerald-400"
+                                            >
+                                                <span className="flex gap-1 items-center">{item.type} <LuLink2 /></span>
+                                            </a>
+                                        })
+                                    }
+                                </div>
                             </div>
                         </div>
                     ))}

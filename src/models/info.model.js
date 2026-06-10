@@ -14,12 +14,17 @@ const ExperienceItemSchema = new Schema({
     description: { type: [String], required: true }
 }, { _id: false });
 
+const linkSchema = new Schema({
+    type: { type: String, required: true },
+    link: { type: String, required: true },
+}, { _id: false });
+
 const PortfolioItemSchema = new Schema({
     title: { type: String, required: true },
     category: { type: String, required: true },
     description: { type: String, required: true },
     tech: { type: [String], required: true },
-    link: { type: String, required: true }
+    link: [linkSchema]
 }, { _id: false });
 
 const ExpertiseItemSchema = new Schema({

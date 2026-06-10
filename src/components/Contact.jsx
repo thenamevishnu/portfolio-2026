@@ -1,16 +1,29 @@
 "use client";
 import { useState } from "react";
 import { useMe } from "@/providers/DataProvider";
+import axios from "axios";
 
 export const Contact = () => {
     const myInfo = useMe();
     const [pending, setPending] = useState(false);
+    const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        axios.get("/api/tg", {
+            params: {
+                message: JSON.stringify(formData)
+            }
+        })
         setPending(true);
         setTimeout(() => setPending(false), 2000);
     };
+
+    const handleChange = e => {
+        setFormData(prev => {
+            return { ...prev, [e.target.name]: e.target.value };
+        })
+    }
 
     return (
         <section
@@ -87,23 +100,24 @@ export const Contact = () => {
                     {/* - Padding scales tightly from p-4 up to standard p-8 metrics to give text elements max width */}
                     <form
                         onSubmit={handleSubmit}
+                        onChange={handleChange}
                         className="space-y-3.5 w-full max-w-xl mx-auto md:mx-0 bg-neutral-900/10 border border-neutral-900 p-4 xs:p-6 sm:p-8 rounded-2xl"
                     >
                         {/* Name and Email input row splits only on screens above 'xs' breakpoint */}
                         <div className="grid grid-cols-1 xs:grid-cols-2 gap-3.5">
                             <div className="space-y-1">
                                 <label htmlFor="name" className="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase">Name</label>
-                                <input type="text" id="name" required placeholder="John Doe" className="w-full h-10 sm:h-11 bg-neutral-950 border border-neutral-900 rounded-xl px-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors" />
+                                <input type="text" name="name" defaultValue={formData.name} id="name" required placeholder="John Doe" className="w-full h-10 sm:h-11 bg-neutral-950 border border-neutral-900 rounded-xl px-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors" />
                             </div>
                             <div className="space-y-1">
                                 <label htmlFor="email" className="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase">Email</label>
-                                <input type="email" id="email" required placeholder="john@example.com" className="w-full h-10 sm:h-11 bg-neutral-950 border border-neutral-900 rounded-xl px-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors" />
+                                <input type="email" name="email" defaultValue={formData.email} id="email" required placeholder="john@example.com" className="w-full h-10 sm:h-11 bg-neutral-950 border border-neutral-900 rounded-xl px-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors" />
                             </div>
                         </div>
 
                         <div className="space-y-1">
                             <label htmlFor="message" className="text-[10px] font-semibold tracking-wide text-neutral-400 uppercase">Message</label>
-                            <textarea id="message" rows={4}  required placeholder="Tell me about your project ideas..." className="w-full bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors resize-none" ></textarea>
+                            <textarea id="message" name="message" defaultValue={formData.message} rows={4}  required placeholder="Tell me about your project ideas..." className="w-full bg-neutral-950 border border-neutral-900 rounded-xl p-3.5 text-xs sm:text-sm text-white placeholder-neutral-600 focus:outline-none focus:border-neutral-700 transition-colors resize-none" ></textarea>
                         </div>
 
                         <button
