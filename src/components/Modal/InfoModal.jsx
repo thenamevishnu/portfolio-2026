@@ -64,12 +64,12 @@ export const ReviewInfoModal = ({ selectedReviewInfo, setSelectedReviewInfo }) =
                 className="relative w-full max-w-md max-h-[calc(100vh-1rem)] overflow-y-auto rounded-xl border border-neutral-900 bg-neutral-950 p-2.5 xs:p-6 sm:p-8 text-center shadow-2xl transition-all duration-300 scrollbar-none"
             >
                 <div className="relative z-10 flex items-center gap-2 p-3 xxs:p-1 text-left border-b border-neutral-900 pb-1.5 mb-2 xs:pb-4 xs:mb-4">
-                    <div className="rounded-full flex h-14 w-8 xs:h-14 xs:w-14 shrink-0 items-center justify-center bg-neutral-900 border border-neutral-800 p-0.5">
+                    <div className="rounded-full flex w-14 shrink-0 items-center justify-center bg-neutral-900 border border-neutral-800 p-0.5">
                         {selectedReviewInfo?.picture ? (
                             <img
                                 src={selectedReviewInfo.picture}
                                 alt={selectedReviewInfo?.name || "User"}
-                                className="rounded-full w-full h-full object-cover"
+                                className="rounded-full shrink-0 object-cover"
                             />
                         ) : (
                             <div className="w-full h-full rounded-full bg-neutral-800 flex items-center justify-center text-[10px] xs:text-sm font-bold text-neutral-400">

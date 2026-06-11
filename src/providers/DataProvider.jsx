@@ -7,6 +7,7 @@ import { persistor, store } from "@/store/store";
 import { Provider } from "react-redux";
 import { Modal } from "@/components/Modal/Modal";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { FloatingGameButton } from "@/components/FloatingGameButton";
 
 const DataContext = createContext();
 
@@ -38,6 +39,7 @@ export const DataProvider = ({ children }) => {
                 <Provider store={store}>
                     {myInfo ? children : <LoadingScreen />}
                     <Modal />
+                    <FloatingGameButton />
                 </Provider>
             </PersistGate>
         </DataContext.Provider>

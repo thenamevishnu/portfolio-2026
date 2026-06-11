@@ -2,6 +2,7 @@ import { Geom } from "next/font/google";
 import "./globals.css";
 import { DataProvider } from "@/providers/DataProvider";
 import { MaintenanceModal } from "@/components/Maintenance";
+import { CursorFollower } from "@/components/CursorFollower";
 
 const geom = Geom({
     variable: "--font-geom",
@@ -21,6 +22,7 @@ const RootLayout = ({ children }) => {
         <body className={`antialiased ${geom.className} ${geom.variable}`}>
             <DataProvider>
                 <MaintenanceModal />
+                <CursorFollower />
                 {children}
             </DataProvider>
         </body>
