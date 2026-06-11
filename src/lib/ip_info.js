@@ -2,8 +2,8 @@ import axios from "axios";
 
 const getLocation = async (id) => {
     try {
-        const { data } = await axios.get(`${process.env.NEXT_PUBLIC_IP_INFO_API}/${id}`);
-        return data?.city;
+        const { data } = await axios.post(`/api/ip-info`, { id });
+        return data?.data?.city;
     } catch (e) {
         return undefined;
     }
