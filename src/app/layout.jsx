@@ -85,6 +85,9 @@ export const metadata = {
 
 const RootLayout = ({ children }) => {
     return <html>
+        <head>
+            <meta name="google-adsense-account" content="ca-pub-1843044106366424"></meta>
+        </head>
         <body className={`antialiased ${geom.className} ${geom.variable}`}>
             <DataProvider>
                 <MaintenanceModal />
